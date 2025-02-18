@@ -213,14 +213,14 @@ class InvoiceProcessor:
         """Create the invoices table if it doesn't exist"""
         cursor = self.conn.cursor()
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS invoices (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,  # Auto-incrementing ID
-                date TEXT,  # Extracted date
-                buyer TEXT,  # Extracted buyer name
-                total REAL,  # Extracted total amount
-                tax REAL,  # Extracted tax amount
-                image_path TEXT  # Path to the original image
-            )''')
+        CREATE TABLE IF NOT EXISTS invoices (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, -- Auto-incrementing ID
+            date TEXT,                            -- Extracted date
+            buyer TEXT,                           -- Extracted buyer name
+            total REAL,                           -- Extracted total amount
+            tax REAL,                             -- Extracted tax amount
+            image_path TEXT                       -- Path to the original image
+        )''')
         self.conn.commit()  # Commit schema changes
 
     def process_invoice(self, image_path):
@@ -295,17 +295,24 @@ class InvoiceProcessor:
                 word_predictions.append(Config.ID2LABEL.get(pred, "O"))  # Map ID to label
 
         # Step 6: Extract entities from word predictions
-        entities = {"date": "", "buyer": "", "total": "", "tax": ""}  # Initialize entity store
-        current_entity = None  # Tracks active entity (e.g., "DATE", "BUYER")
+        entities = {"date": "", "buyer": "", "total": "", "tax": ""}  #Initialize entity store
+        current_entity = None # Tracks active entity (e.g., "DATE", "BUYER")
         
         for word, label in zip(words, word_predictions):
             if label.startswith("B-"):
-                current_entity = label.split("-")[1].lower()  # Start new entity (e.g., "B-DATE" → "date")
-                entities[current_entity] = word  # Initialize entity value
-            elif label.startswith("I-") and current_entity:  # Continue existing entity
-                entities[current_entity] += f" {word}"  # Append word to entity
+                current_entity = label.split("-")[1].lower() # Start new entity (e.g., "B-DATE" → "date")
+                entities[current_entity] = word # Initialize entity value
+            elif label.startswith("I-") and current_entity: # Continue existing entity
+                entities[current_entity] += f" {word}" # Append word to entity
             else:
-                current_entity
+                current_entity = None # Reset current entity
+
+        # Post-process extracted values
+        entities["total"] = self._validate_numeric(entities["total"])
+        entities["tax"] = self._validate_numeric(entities["tax"])
+        entities["date"] = self._validate_date(entities["date"])
+        
+        return entities # Return the populated entities dictionary
 
     def _validate_numeric(self, value):
         """Convert numeric fields to float, default to 0.0 on failure"""
