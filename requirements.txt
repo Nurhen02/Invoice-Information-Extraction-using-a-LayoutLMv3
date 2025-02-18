@@ -1,0 +1,9 @@
+transformers>=4.30
+datasets>=2.12
+Pillow>=9.4
+torch>=2.0
+scikit-learn>=1.2
+numpy>=1.24
+seqeval>=1.2
+python-dotenv>=0.21
+pytesseract>=0.3.13
