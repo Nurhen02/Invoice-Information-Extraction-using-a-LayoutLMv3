@@ -104,3 +104,6 @@ ID | Date       | Buyer        | Total  | Tax  | Image Path
 
 ## 9. Conclusion
 This project automates invoice processing using deep learning. It eliminates manual data entry and enables seamless integration into business workflows. Future improvements could include training on more datasets and integrating an external OCR system for better text detection.
+
+##.REMARK
+The dataset is not available in this Project !.
